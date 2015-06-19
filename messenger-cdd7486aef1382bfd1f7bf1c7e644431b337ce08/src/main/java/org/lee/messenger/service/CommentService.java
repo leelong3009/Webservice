@@ -4,8 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.lee.messenger.database.DatabaseClass;
 import org.lee.messenger.model.Comment;
+import org.lee.messenger.model.ErrorMessage;
 import org.lee.messenger.model.Message;
 
 public class CommentService {
@@ -13,12 +18,24 @@ public class CommentService {
 	private Map<Long, Message> messages = DatabaseClass.getMessages();
 	
 	public List<Comment> getAllComments(long messageId) {
-		Map<Long, Comment> comments = messages.get(messageId).getComments();
+		Message message = messages.get(messageId);
+		Map<Long, Comment> comments = message.getComments();
 		return new ArrayList<Comment>(comments.values());
 	}
 	
 	public Comment getComment(long messageId, long commentId) {
-		Map<Long, Comment> comments = messages.get(messageId).getComments();
+		ErrorMessage errorMsg = new ErrorMessage("Not found", 404, "http://");
+		Response response = Response.status(Status.NOT_FOUND)
+									.entity(errorMsg)
+									.build();
+		Message message = messages.get(messageId);
+		if(message == null){
+			throw new NotFoundException(response);
+		}
+		Map<Long, Comment> comments = message.getComments();
+		if(comments == null || comments.isEmpty()){
+			throw new NotFoundException(response);
+		}
 		return comments.get(commentId);
 	}
 	

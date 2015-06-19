@@ -22,8 +22,6 @@ public class ProfileResource {
 
 	private ProfileService profileService = new ProfileService();
 	
-	
-	
 	@GET
 	public List<Profile> getProfiles() {
 		return profileService.getAllProfiles();
